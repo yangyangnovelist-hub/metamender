@@ -1,0 +1,30 @@
+{
+  "name": "metamender",
+  "version": "0.1.0",
+  "description": "A governance-steward agent for DataHub: sweep the metadata graph for governance gaps, explain each in plain English, and on explicit per-item confirmation write the fix back through the official DataHub MCP server.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "bin": {
+    "steward": "./steward/src/cli.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "scan": "tsx steward/src/cli.ts scan"
+  },
+  "keywords": [
+    "datahub",
+    "mcp",
+    "data-governance",
+    "agent"
+  ],
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0"
+  }
+}
