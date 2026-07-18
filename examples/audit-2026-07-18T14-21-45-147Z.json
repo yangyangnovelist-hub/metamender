@@ -1,0 +1,88 @@
+{
+  "runAt": "2026-07-18T14:21:45.147Z",
+  "target": "DataHub at http://localhost:8080",
+  "counts": {
+    "found": 2,
+    "fixed": 2,
+    "skipped": 0,
+    "failed": 0
+  },
+  "findings": [
+    {
+      "urn": "urn:li:dataset:(urn:li:dataPlatform:postgres,b2fd91.order_entry_db.order_entry.addresses,PROD)",
+      "kind": "missing-owner",
+      "severity": 60,
+      "entityName": "addresses",
+      "evidence": "Dataset \"addresses\" has no owner assigned.",
+      "proposedFix": "Assign a technical owner via add_owners (ownership_type TECHNICAL_OWNER)."
+    },
+    {
+      "urn": "urn:li:dataset:(urn:li:dataPlatform:postgres,b2fd91.order_entry_db.order_entry.addresses,PROD)",
+      "kind": "missing-description",
+      "severity": 40,
+      "entityName": "addresses",
+      "evidence": "Dataset \"addresses\" has no description (neither ingested nor editable).",
+      "proposedFix": "Write an AI-drafted description (marked \"drafted by MetaMender\") via update_description."
+    }
+  ],
+  "fixed": [
+    {
+      "urn": "urn:li:dataset:(urn:li:dataPlatform:postgres,b2fd91.order_entry_db.order_entry.addresses,PROD)",
+      "kind": "missing-owner",
+      "entityName": "addresses",
+      "mutation": {
+        "tool": "add_owners",
+        "args": {
+          "owner_urns": [
+            "urn:li:corpuser:datahub"
+          ],
+          "entity_urns": [
+            "urn:li:dataset:(urn:li:dataPlatform:postgres,b2fd91.order_entry_db.order_entry.addresses,PROD)"
+          ],
+          "ownership_type": "TECHNICAL_OWNER"
+        }
+      },
+      "ack": {
+        "success": true,
+        "message": "Successfully added 1 owner(s) to 1 entit(ies)"
+      }
+    },
+    {
+      "urn": "urn:li:dataset:(urn:li:dataPlatform:postgres,b2fd91.order_entry_db.order_entry.addresses,PROD)",
+      "kind": "missing-description",
+      "entityName": "addresses",
+      "mutation": {
+        "tool": "update_description",
+        "args": {
+          "entity_urn": "urn:li:dataset:(urn:li:dataPlatform:postgres,b2fd91.order_entry_db.order_entry.addresses,PROD)",
+          "operation": "replace",
+          "description": "Drafted by MetaMender — \"addresses\" is a postgres dataset. It has 9 field(s): address_id, address_line1, address_line2, country_id, customer_id, date_created, region_id, town_city, +1 more. Review and refine this auto-generated description."
+        }
+      },
+      "ack": {
+        "success": true,
+        "urn": "urn:li:dataset:(urn:li:dataPlatform:postgres,b2fd91.order_entry_db.order_entry.addresses,PROD)",
+        "column_path": null,
+        "message": "Description updated successfully"
+      }
+    }
+  ],
+  "skipped": [],
+  "failed": [],
+  "verifications": [
+    {
+      "urn": "urn:li:dataset:(urn:li:dataPlatform:postgres,b2fd91.order_entry_db.order_entry.addresses,PROD)",
+      "kind": "missing-owner",
+      "before": "no owner",
+      "after": "owner(s): [object Object]",
+      "ok": true
+    },
+    {
+      "urn": "urn:li:dataset:(urn:li:dataPlatform:postgres,b2fd91.order_entry_db.order_entry.addresses,PROD)",
+      "kind": "missing-description",
+      "before": "no description",
+      "after": "Drafted by MetaMender — \"addresses\" is a postgres dataset. It has 9 field(s): address_id, address_line1, address_line2, …",
+      "ok": true
+    }
+  ]
+}

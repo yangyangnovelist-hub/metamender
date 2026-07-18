@@ -1,0 +1,157 @@
+{
+  "runAt": "2026-07-18T14:19:50.775Z",
+  "target": "DataHub at http://localhost:8080",
+  "counts": {
+    "found": 5,
+    "fixed": 3,
+    "skipped": 0,
+    "failed": 0
+  },
+  "findings": [
+    {
+      "urn": "urn:li:dataset:(urn:li:dataPlatform:dbt,b2fd91.order_entry_db.order_entry.customers,PROD)",
+      "kind": "pii-untagged",
+      "column": "credit_limit",
+      "severity": 100,
+      "entityName": "customers",
+      "evidence": "Column \"credit_limit\" on \"customers\" looks like PII but has no PII glossary term (and the table has active downstreams).",
+      "proposedFix": "Apply the PII glossary term (urn:li:glossaryTerm:b2fd91.1598cf93-c199-43a1-8833-fce96faa9a1a) to column \"credit_limit\" via add_terms."
+    },
+    {
+      "urn": "urn:li:dataset:(urn:li:dataPlatform:postgres,b2fd91.order_entry_db.order_entry.customers,PROD)",
+      "kind": "pii-untagged",
+      "column": "credit_limit",
+      "severity": 100,
+      "entityName": "customers",
+      "evidence": "Column \"credit_limit\" on \"customers\" looks like PII but has no PII glossary term (and the table has active downstreams).",
+      "proposedFix": "Apply the PII glossary term (urn:li:glossaryTerm:b2fd91.1598cf93-c199-43a1-8833-fce96faa9a1a) to column \"credit_limit\" via add_terms."
+    },
+    {
+      "urn": "urn:li:dataset:(urn:li:dataPlatform:snowflake,b2fd91.order_entry_db.order_entry.customers,PROD)",
+      "kind": "pii-untagged",
+      "column": "credit_limit",
+      "severity": 100,
+      "entityName": "CUSTOMERS",
+      "evidence": "Column \"credit_limit\" on \"CUSTOMERS\" looks like PII but has no PII glossary term (and the table has active downstreams).",
+      "proposedFix": "Apply the PII glossary term (urn:li:glossaryTerm:b2fd91.1598cf93-c199-43a1-8833-fce96faa9a1a) to column \"credit_limit\" via add_terms."
+    },
+    {
+      "urn": "urn:li:dataset:(urn:li:dataPlatform:postgres,b2fd91.order_entry_db.order_entry.addresses,PROD)",
+      "kind": "missing-owner",
+      "severity": 60,
+      "entityName": "addresses",
+      "evidence": "Dataset \"addresses\" has no owner assigned.",
+      "proposedFix": "Assign a technical owner via add_owners (ownership_type TECHNICAL_OWNER)."
+    },
+    {
+      "urn": "urn:li:dataset:(urn:li:dataPlatform:looker,b2fd91.order-entry-looker.view.order_details,PROD)",
+      "kind": "missing-description",
+      "severity": 40,
+      "entityName": "order_details",
+      "evidence": "Dataset \"order_details\" has no description (neither ingested nor editable).",
+      "proposedFix": "Write an AI-drafted description (marked \"drafted by MetaMender\") via update_description."
+    }
+  ],
+  "fixed": [
+    {
+      "urn": "urn:li:dataset:(urn:li:dataPlatform:dbt,b2fd91.order_entry_db.order_entry.customers,PROD)",
+      "kind": "pii-untagged",
+      "column": "credit_limit",
+      "entityName": "customers",
+      "mutation": {
+        "tool": "add_terms",
+        "args": {
+          "term_urns": [
+            "urn:li:glossaryTerm:b2fd91.1598cf93-c199-43a1-8833-fce96faa9a1a"
+          ],
+          "entity_urns": [
+            "urn:li:dataset:(urn:li:dataPlatform:dbt,b2fd91.order_entry_db.order_entry.customers,PROD)"
+          ],
+          "column_paths": [
+            "credit_limit"
+          ]
+        }
+      },
+      "ack": {
+        "success": true,
+        "message": "Successfully added 1 glossary term(s) to 1 entit(ies)"
+      }
+    },
+    {
+      "urn": "urn:li:dataset:(urn:li:dataPlatform:postgres,b2fd91.order_entry_db.order_entry.customers,PROD)",
+      "kind": "pii-untagged",
+      "column": "credit_limit",
+      "entityName": "customers",
+      "mutation": {
+        "tool": "add_terms",
+        "args": {
+          "term_urns": [
+            "urn:li:glossaryTerm:b2fd91.1598cf93-c199-43a1-8833-fce96faa9a1a"
+          ],
+          "entity_urns": [
+            "urn:li:dataset:(urn:li:dataPlatform:postgres,b2fd91.order_entry_db.order_entry.customers,PROD)"
+          ],
+          "column_paths": [
+            "credit_limit"
+          ]
+        }
+      },
+      "ack": {
+        "success": true,
+        "message": "Successfully added 1 glossary term(s) to 1 entit(ies)"
+      }
+    },
+    {
+      "urn": "urn:li:dataset:(urn:li:dataPlatform:snowflake,b2fd91.order_entry_db.order_entry.customers,PROD)",
+      "kind": "pii-untagged",
+      "column": "credit_limit",
+      "entityName": "CUSTOMERS",
+      "mutation": {
+        "tool": "add_terms",
+        "args": {
+          "term_urns": [
+            "urn:li:glossaryTerm:b2fd91.1598cf93-c199-43a1-8833-fce96faa9a1a"
+          ],
+          "entity_urns": [
+            "urn:li:dataset:(urn:li:dataPlatform:snowflake,b2fd91.order_entry_db.order_entry.customers,PROD)"
+          ],
+          "column_paths": [
+            "credit_limit"
+          ]
+        }
+      },
+      "ack": {
+        "success": true,
+        "message": "Successfully added 1 glossary term(s) to 1 entit(ies)"
+      }
+    }
+  ],
+  "skipped": [],
+  "failed": [],
+  "verifications": [
+    {
+      "urn": "urn:li:dataset:(urn:li:dataPlatform:dbt,b2fd91.order_entry_db.order_entry.customers,PROD)",
+      "kind": "pii-untagged",
+      "column": "credit_limit",
+      "before": "no PII term on \"credit_limit\"",
+      "after": "PII term now on \"credit_limit\"",
+      "ok": true
+    },
+    {
+      "urn": "urn:li:dataset:(urn:li:dataPlatform:postgres,b2fd91.order_entry_db.order_entry.customers,PROD)",
+      "kind": "pii-untagged",
+      "column": "credit_limit",
+      "before": "no PII term on \"credit_limit\"",
+      "after": "PII term now on \"credit_limit\"",
+      "ok": true
+    },
+    {
+      "urn": "urn:li:dataset:(urn:li:dataPlatform:snowflake,b2fd91.order_entry_db.order_entry.customers,PROD)",
+      "kind": "pii-untagged",
+      "column": "credit_limit",
+      "before": "no PII term on \"credit_limit\"",
+      "after": "PII term now on \"credit_limit\"",
+      "ok": true
+    }
+  ]
+}

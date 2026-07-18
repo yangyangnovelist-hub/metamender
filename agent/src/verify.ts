@@ -67,8 +67,22 @@ function ownerLabels(owners: unknown[]): string {
   return owners
     .map((o) => {
       if (typeof o === "string") return o;
-      const obj = o as { owner?: string; ownerUrn?: string; urn?: string };
-      return obj.owner ?? obj.ownerUrn ?? obj.urn ?? JSON.stringify(o);
+      // DataHub shape: { owner: { urn, name, properties: { displayName } }, ... }
+      const obj = o as {
+        owner?: { properties?: { displayName?: string }; name?: string; urn?: string };
+        ownerUrn?: string;
+        urn?: string;
+      };
+      const nested = obj.owner;
+      if (nested && typeof nested === "object") {
+        return nested.properties?.displayName ?? nested.name ?? nested.urn ?? JSON.stringify(o);
+      }
+      return (
+        (typeof obj.owner === "string" ? obj.owner : undefined) ??
+        obj.ownerUrn ??
+        obj.urn ??
+        JSON.stringify(o)
+      );
     })
     .join(", ");
 }
