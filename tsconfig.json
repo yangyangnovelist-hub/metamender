@@ -14,6 +14,6 @@
     "isolatedModules": true,
     "verbatimModuleSyntax": true
   },
-  "include": ["steward/**/*.ts", "test/**/*.ts"],
+  "include": ["steward/**/*.ts", "agent/**/*.ts", "report/**/*.ts", "test/**/*.ts"],
   "exclude": ["node_modules"]
 }
