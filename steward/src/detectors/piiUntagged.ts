@@ -16,6 +16,10 @@ import {
 export const PII_TERM_URN =
   "urn:li:glossaryTerm:b2fd91.1598cf93-c199-43a1-8833-fce96faa9a1a";
 
+export function configuredPiiTermUrn(env: NodeJS.ProcessEnv = process.env): string {
+  return env.METAMENDER_PII_TERM_URN ?? PII_TERM_URN;
+}
+
 /**
  * Substrings that mark a field name as PII-looking. `ip` is handled separately as a
  * whole token (below) so it doesn't fire on "description", "recipient", etc.
@@ -41,13 +45,13 @@ export function isPiiFieldName(name: string): boolean {
   return tokens.some((t) => PII_TOKENS.includes(t));
 }
 
-/** True iff the field already carries a glossary term whose name contains "PII". */
-export function hasPiiTerm(field: SchemaField): boolean {
+/** True iff the field carries the configured term URN or a term named as PII. */
+export function hasPiiTerm(field: SchemaField, piiTermUrn = PII_TERM_URN): boolean {
   const names: string[] = [];
   for (const source of [field.editedGlossaryTerms, field.terms, field.glossaryTerms]) {
     collectTermNames(source, names);
   }
-  return names.some((n) => /pii/i.test(n));
+  return names.some((n) => n === piiTermUrn || /pii/i.test(n));
 }
 
 function collectTermNames(source: unknown, out: string[]): void {
@@ -73,9 +77,10 @@ export function detectPiiUntaggedForDataset(
   dataset: DatasetRef,
   fields: SchemaField[],
   hasDownstream: boolean,
+  piiTermUrn = PII_TERM_URN,
 ): Finding[] {
   return fields
-    .filter((f) => isPiiFieldName(f.fieldPath) && !hasPiiTerm(f))
+    .filter((f) => isPiiFieldName(f.fieldPath) && !hasPiiTerm(f, piiTermUrn))
     .map((f) => ({
       urn: dataset.urn,
       kind: "pii-untagged" as const,
@@ -85,7 +90,7 @@ export function detectPiiUntaggedForDataset(
       evidence:
         `Column "${f.fieldPath}" on "${dataset.name}" looks like PII but has no PII glossary term` +
         (hasDownstream ? " (and the table has active downstreams)." : "."),
-      proposedFix: `Apply the PII glossary term (${PII_TERM_URN}) to column "${f.fieldPath}" via add_terms.`,
+      proposedFix: `Apply the PII glossary term (${piiTermUrn}) to column "${f.fieldPath}" via add_terms.`,
     }));
 }
 
@@ -100,14 +105,17 @@ export async function detectPiiUntagged(
   datasets?: DatasetRef[],
 ): Promise<Finding[]> {
   const targets = datasets ?? (await searchDatasets(client));
+  const piiTermUrn = configuredPiiTermUrn();
   const findings: Finding[] = [];
   for (const ds of targets) {
     const fields = await getSchemaFields(client, ds.urn);
-    const piiFields = fields.filter((f) => isPiiFieldName(f.fieldPath) && !hasPiiTerm(f));
+    const piiFields = fields.filter(
+      (f) => isPiiFieldName(f.fieldPath) && !hasPiiTerm(f, piiTermUrn),
+    );
     if (piiFields.length === 0) continue;
     // Only pay for lineage when there's actually something to rank.
     const hasDownstream = (await getDownstreamCount(client, ds.urn)) > 0;
-    findings.push(...detectPiiUntaggedForDataset(ds, fields, hasDownstream));
+    findings.push(...detectPiiUntaggedForDataset(ds, fields, hasDownstream, piiTermUrn));
   }
   return findings;
 }

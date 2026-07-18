@@ -65,16 +65,26 @@ export async function getDownstreamCount(
   client: DataHubClient,
   urn: string,
 ): Promise<number> {
+  return (await getLineageCount(client, urn, false)) ?? 0;
+}
+
+/** Return one lineage direction's count; undefined means the query failed. */
+export async function getLineageCount(
+  client: DataHubClient,
+  urn: string,
+  upstream: boolean,
+): Promise<number | undefined> {
   try {
     const res = await client.callTool<LineageResponse>("get_lineage", {
       urn,
-      upstream: false,
+      upstream,
       max_hops: 1,
       max_results: 30,
     });
-    return res?.downstreams?.total ?? res?.total ?? res?.downstreams?.results?.length ?? 0;
+    const direction = upstream ? res?.upstreams : res?.downstreams;
+    return direction?.total ?? direction?.results?.length ?? res?.total ?? 0;
   } catch {
-    return 0;
+    return undefined;
   }
 }
 
@@ -98,5 +108,6 @@ interface SchemaFieldsResponse {
 }
 interface LineageResponse {
   total?: number;
+  upstreams?: { total?: number; results?: unknown[] };
   downstreams?: { total?: number; results?: unknown[] };
 }

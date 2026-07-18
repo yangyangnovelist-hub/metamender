@@ -51,7 +51,8 @@ function renderHuman(findings: Finding[], out: (s: string) => void, dryRun: bool
     `Found ${findings.length} governance gaps: ` +
       `${counts["pii-untagged"] ?? 0} PII untagged, ` +
       `${counts["missing-owner"] ?? 0} missing owner, ` +
-      `${counts["missing-description"] ?? 0} missing description.`,
+      `${counts["missing-description"] ?? 0} missing description, ` +
+      `${counts.orphan ?? 0} orphan candidates.`,
   );
   out("");
 

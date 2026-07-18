@@ -17,16 +17,21 @@ function buildClient(): MockDataHubClient {
     .on("list_schema_fields", (args) =>
       args.urn === ADDR.urn ? { fields: ADDR.result.fields } : { fields: [] },
     )
-    .on("get_lineage", () => ({ downstreams: { total: 0 } }));
+    .on("get_lineage", (args) =>
+      args.upstream
+        ? { upstreams: { total: 1 } }
+        : { downstreams: { total: 1 } },
+    );
 }
 
 describe("scan", () => {
-  it("composes all three detectors: 10 owner + 14 desc + 1 pii = 25 findings", async () => {
+  it("composes all four detectors: 10 owner + 14 desc + 1 pii + 0 orphan", async () => {
     const findings = await scan(buildClient());
     const byKind = (k: string) => findings.filter((f) => f.kind === k).length;
     expect(byKind("missing-owner")).toBe(10);
     expect(byKind("missing-description")).toBe(14);
     expect(byKind("pii-untagged")).toBe(1);
+    expect(byKind("orphan")).toBe(0);
     expect(findings).toHaveLength(25);
   });
 

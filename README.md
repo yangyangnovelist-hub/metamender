@@ -15,7 +15,8 @@ Real Work.
 
 1. Scans up to 100 DataHub datasets through MCP.
 2. Detects missing owners, missing descriptions, PII-looking fields without the
-   sample catalog's PII glossary term, and orphan cleanup candidates.
+   configured PII glossary term, and datasets with no upstream or downstream
+   lineage as orphan review candidates.
 3. Ranks findings by risk and explains the evidence in plain English.
 4. Shows one exact proposed mutation at a time.
 5. Requires a fresh terminal `yes` for that single mutation.
@@ -23,7 +24,8 @@ Real Work.
 7. Re-reads DataHub independently and emits Markdown plus JSON audit evidence.
 
 PII name matching produces **review candidates**, not claims about the underlying
-data. Orphans are reported for human review and are never auto-fixed.
+data. Orphans are reported only when both lineage reads succeed and return zero;
+they are never auto-fixed.
 
 ## The safety boundary is code, not a prompt
 
@@ -95,6 +97,10 @@ npm install
 cp .env.example .env
 ```
 
+Before a real repair, set `METAMENDER_OWNER_URN` and
+`METAMENDER_PII_TERM_URN` to your organization's accountable owner and glossary
+term. `METAMENDER_SCOPE_LABEL` names the catalog/environment in audit evidence.
+
 Make sure `uvx` is on `PATH`, then run the read-only scan:
 
 ```bash
@@ -135,7 +141,7 @@ npm audit
 
 Current verified baseline:
 
-- 79 default tests pass; 3 more real MCP checks pass against a local DataHub
+- 84 default tests pass; 3 more real MCP checks pass against a local DataHub
   quickstart.
 - TypeScript type checking passes.
 - The dependency audit reports zero known vulnerabilities.
@@ -161,11 +167,11 @@ actually filed and accepted.
 ## Scope and limitations
 
 - The default scan is bounded to the first 100 matching datasets.
-- The current heuristic and sample PII glossary term are tuned to the DataHub
-  showcase catalog and should be configured for each organization.
-- Missing-owner fixes default to the built-in quickstart user
-  `urn:li:corpuser:datahub`; production deployments should configure a real
-  accountable owner.
+- The PII name heuristic is deliberately narrow. The target glossary term is
+  configured with `METAMENDER_PII_TERM_URN` for each organization.
+- Missing-owner fixes use `METAMENDER_OWNER_URN`; the example file defaults to
+  the quickstart user `urn:li:corpuser:datahub` and must be replaced before a
+  production write.
 - Auto-drafted descriptions are visibly prefixed with `Drafted by MetaMender —`
   and should be refined by a steward.
 - This release does not auto-create lineage or delete/deprecate entities.

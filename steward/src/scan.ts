@@ -5,6 +5,7 @@ import { searchDatasets, getEntities } from "./queries.js";
 import { detectMissingOwner } from "./detectors/missingOwner.js";
 import { detectMissingDescription } from "./detectors/missingDescription.js";
 import { detectPiiUntagged } from "./detectors/piiUntagged.js";
+import { detectOrphans } from "./detectors/orphan.js";
 
 /**
  * The read-only governance sweep. One `search` + one batched `get_entities` feed the
@@ -15,11 +16,12 @@ export async function scan(client: DataHubClient): Promise<Finding[]> {
   const datasets = await searchDatasets(client);
   const entities = await getEntities(client, datasets.map((d) => d.urn));
 
-  const [owner, description, pii] = await Promise.all([
+  const [owner, description, pii, orphan] = await Promise.all([
     detectMissingOwner(client, entities),
     detectMissingDescription(client, entities),
     detectPiiUntagged(client, datasets),
+    detectOrphans(client, datasets),
   ]);
 
-  return sortFindings([...owner, ...description, ...pii]);
+  return sortFindings([...owner, ...description, ...pii, ...orphan]);
 }

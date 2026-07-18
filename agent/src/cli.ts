@@ -105,8 +105,16 @@ function filterFindings(findings: Finding[], targets: Target[]): Finding[] {
  * Optional LLM description drafter. Any SDK or model failure falls back to the
  * deterministic template, so a description fix never depends on an LLM response.
  */
-function buildDraftOption(): FixOptions {
-  if (!process.env.ANTHROPIC_API_KEY) return {};
+function buildFixOptions(): FixOptions {
+  const options: FixOptions = {
+    ...(process.env.METAMENDER_OWNER_URN
+      ? { ownerUrn: process.env.METAMENDER_OWNER_URN }
+      : {}),
+    ...(process.env.METAMENDER_PII_TERM_URN
+      ? { piiTermUrn: process.env.METAMENDER_PII_TERM_URN }
+      : {}),
+  };
+  if (!process.env.ANTHROPIC_API_KEY) return options;
   const draft: FixOptions["draft"] = async (finding, fields) => {
     try {
       const specifier = "@anthropic-ai/sdk";
@@ -138,7 +146,7 @@ function buildDraftOption(): FixOptions {
       return templateDescription(finding, fields);
     }
   };
-  return { draft };
+  return { ...options, draft };
 }
 
 /** Claude Agent SDK mode, reusing the same code-enforced gate as scripted mode. */
@@ -151,7 +159,7 @@ async function runLlmMode(
     import("@anthropic-ai/claude-agent-sdk"),
     import("zod"),
   ]);
-  const fixOpts = buildDraftOption();
+  const fixOpts = buildFixOptions();
   const scan = async () => filterFindings(await scanCatalog(client), args.targets);
   const applyFn = (f: Finding) => applyFix(client, f, fixOpts);
   const sessionTools = createSessionTools({ scan, applyFix: applyFn, io });
@@ -298,7 +306,7 @@ export async function runRound(
   args: ParsedArgs,
   io: HarnessIO,
 ): Promise<number> {
-  const fixOpts = buildDraftOption();
+  const fixOpts = buildFixOptions();
   const scan = async () => filterFindings(await scanCatalog(client), args.targets);
   const applyFn = (f: Finding) => applyFix(client, f, fixOpts);
 
@@ -324,7 +332,9 @@ async function verifyAndWriteAudit(
 
   const { mdPath, jsonPath } = writeAudit(args.reportDir, {
     runAt: new Date().toISOString(),
-    target: "showcase-ecommerce (local DataHub quickstart)",
+    target:
+      process.env.METAMENDER_SCOPE_LABEL ??
+      `DataHub at ${process.env.DATAHUB_GMS_URL ?? "http://localhost:8080"}`,
     summary,
     verifications,
   });

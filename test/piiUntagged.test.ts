@@ -61,6 +61,14 @@ describe("hasPiiTerm", () => {
   it("false when the term is not PII", () => {
     expect(hasPiiTerm({ fieldPath: "x", editedGlossaryTerms: ["Sensitive"] })).toBe(false);
   });
+  it("recognizes the configured term by exact URN even when its name is not PII", () => {
+    const termUrn = "urn:li:glossaryTerm:company.SensitiveCustomerData";
+    const field = {
+      fieldPath: "customer_email",
+      terms: [{ name: "Sensitive Customer Data", urn: termUrn }],
+    };
+    expect(hasPiiTerm(field, termUrn)).toBe(true);
+  });
 });
 
 describe("detectPiiUntaggedForDataset (pure, addresses fixture)", () => {
@@ -76,6 +84,35 @@ describe("detectPiiUntaggedForDataset (pure, addresses fixture)", () => {
     expect(f.severity).toBe(80); // no downstream
     expect(f.urn).toBe(ADDR_URN);
     expect(f.proposedFix).toContain(PII_TERM_URN);
+  });
+
+  it("uses a configured glossary term in the proposed mutation", () => {
+    const customTerm = "urn:li:glossaryTerm:company.CustomerPII";
+    const [finding] = detectPiiUntaggedForDataset(
+      { urn: ADDR_URN, name: "ADDRESSES" },
+      ADDR_FIELDS,
+      false,
+      customTerm,
+    );
+
+    expect(finding.proposedFix).toContain(customTerm);
+  });
+
+  it("does not re-flag a field carrying the configured term under a non-PII name", () => {
+    const customTerm = "urn:li:glossaryTerm:company.SensitiveCustomerData";
+    const findings = detectPiiUntaggedForDataset(
+      { urn: ADDR_URN, name: "ADDRESSES" },
+      [
+        {
+          fieldPath: "customer_email",
+          terms: [{ name: "Sensitive Customer Data", urn: customTerm }],
+        },
+      ],
+      false,
+      customTerm,
+    );
+
+    expect(findings).toEqual([]);
   });
 
   it("boosts severity to 100 when the table has downstreams", () => {

@@ -31,8 +31,9 @@ describe("runCli scan", () => {
     const code = await runCli(["scan", "--json"], { client: buildClient(), out: cap.out });
     expect(code).toBe(0);
     const parsed = JSON.parse(cap.text()) as Finding[];
-    expect(parsed).toHaveLength(25);
+    expect(parsed).toHaveLength(55);
     expect(parsed[0].kind).toBe("pii-untagged");
+    expect(parsed.filter((finding) => finding.kind === "orphan")).toHaveLength(30);
   });
 
   it("default (human) output shows a summary with per-kind counts", async () => {
@@ -40,9 +41,10 @@ describe("runCli scan", () => {
     const code = await runCli(["scan"], { client: buildClient(), out: cap.out });
     expect(code).toBe(0);
     const text = cap.text();
-    expect(text).toContain("25");
+    expect(text).toContain("55");
     expect(text.toLowerCase()).toContain("owner");
     expect(text.toLowerCase()).toContain("pii");
+    expect(text.toLowerCase()).toContain("30 orphan candidates");
   });
 
   it("--dry-run notes that no writes happen", async () => {

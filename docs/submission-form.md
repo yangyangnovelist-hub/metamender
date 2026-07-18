@@ -46,7 +46,7 @@ MetaMender is a TypeScript agent built around the published mcp-server-datahub p
 
 The agent layer exposes scan_governance_gaps and apply_governance_fix as in-process tools to Claude Agent SDK. The apply tool is wrapped by a code-enforced confirmation gate shared with the deterministic fallback. Findings must come from the latest scan and are keyed by exact URN, kind, and optional column.
 
-The repository includes deterministic detectors, mutation planning, independent verification, dual-format audit reporting, 79 passing default tests, and three additional real MCP integration checks against a local DataHub quickstart. The dependency audit currently reports zero known vulnerabilities.
+The repository includes deterministic detectors, bidirectional lineage-based orphan review candidates, configurable owner/glossary targets, mutation planning, independent verification, dual-format audit reporting, 84 passing default tests, and three additional real MCP integration checks against a local DataHub quickstart. The dependency audit currently reports zero known vulnerabilities.
 
 For the open-source bonus, we also prepared a reusable read-only /datahub-audit skill for datahub-project/datahub-skills. It fills an existing routing gap in that repository and is independent of MetaMender's implementation.
 ```
@@ -68,7 +68,7 @@ Finally, MCP tool startup is expensive when a new server is spawned for every ca
 - Code-enforced one-finding/one-confirmation safety shared by LLM and deterministic modes.
 - Evidence-backed PII candidates with downstream-aware severity.
 - Human-readable and machine-readable audit trails.
-- 79 default tests plus three passing real DataHub MCP checks.
+- 84 default tests plus three passing real DataHub MCP checks.
 - A validated, reusable datahub-audit skill contribution prepared for the official DataHub Skills repository.
 ```
 
@@ -81,7 +81,7 @@ A useful governance agent needs more than mutation tools. It needs clear evidenc
 ## What's next
 
 ```text
-Next we will make organization-specific governance policies configurable, resolve ownership through domains and teams instead of a quickstart default user, add bounded scheduling and trend reports, and support additional DataHub governance dimensions such as domains, assertions, and structured properties. The prepared datahub-audit skill will be proposed upstream separately so read-only catalog audits can be reused without installing MetaMender.
+Next we will evolve the current environment-configured owner and glossary targets into versioned policy profiles, resolve ownership through domains and teams, add bounded scheduling and trend reports, and support additional DataHub governance dimensions such as assertions and structured properties. The prepared datahub-audit skill will be proposed upstream separately so read-only catalog audits can be reused without installing MetaMender.
 ```
 
 ## Built with

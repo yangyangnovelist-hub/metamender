@@ -1,7 +1,7 @@
 import type { DataHubClient } from "./datahubClient.js";
 import type { Finding, SchemaField } from "./types.js";
 import { getSchemaFields } from "./queries.js";
-import { PII_TERM_URN } from "./detectors/piiUntagged.js";
+import { configuredPiiTermUrn } from "./detectors/piiUntagged.js";
 
 /**
  * The write-back layer: map one governance Finding to the exact DataHub MCP
@@ -107,7 +107,7 @@ export async function planFix(
       return {
         tool: "add_terms",
         args: {
-          term_urns: [opts.piiTermUrn ?? PII_TERM_URN],
+          term_urns: [opts.piiTermUrn ?? configuredPiiTermUrn()],
           entity_urns: [finding.urn],
           column_paths: [finding.column],
         },
