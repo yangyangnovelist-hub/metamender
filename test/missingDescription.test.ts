@@ -45,8 +45,12 @@ describe("detectMissingDescription", () => {
     expect(findings).toHaveLength(14);
     expect(findings.every((f) => f.kind === "missing-description")).toBe(true);
     expect(findings.every((f) => f.severity === 40)).toBe(true);
-    // order_details has descriptions in both overlays -> not flagged.
-    expect(findings.map((f) => f.entityName)).not.toContain("order_details");
+    // The dbt order_details is documented -> its urn must not be flagged.
+    // (Several datasets share the name "order_details", so assert on urn.)
+    const flaggedUrns = findings.map((f) => f.urn);
+    expect(flaggedUrns).not.toContain(
+      "urn:li:dataset:(urn:li:dataPlatform:dbt,b2fd91.ORDER_ENTRY_DB.analytics.order_details,PROD)",
+    );
   });
 
   it("reuses pre-fetched entities without hitting the client", async () => {
