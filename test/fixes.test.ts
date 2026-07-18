@@ -125,7 +125,7 @@ describe("planFix — missing-description", () => {
     expect(desc).toContain("snowflake");
     expect(desc).toContain("ADDRESSES");
     expect(desc).toContain("town_city");
-    expect(desc).toContain("zipcode");
+    expect(desc).toContain("9 field"); // field count surfaced
     // It had to read the schema to draft.
     expect(client.calls.some((c) => c.name === "list_schema_fields")).toBe(true);
   });
