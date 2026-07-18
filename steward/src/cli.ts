@@ -1,8 +1,9 @@
 #!/usr/bin/env -S npx tsx
 import type { DataHubClient } from "./datahubClient.js";
-import { StdioDataHubClient, configFromEnv } from "./datahubClient.js";
+import { StdioDataHubClient, configFromEnv, loadProjectEnv } from "./datahubClient.js";
 import type { Finding, FindingKind } from "./types.js";
 import { scan } from "./scan.js";
+import { pathToFileURL } from "node:url";
 
 export interface CliDeps {
   client: DataHubClient;
@@ -78,19 +79,20 @@ function countByKind(findings: Finding[]): Partial<Record<FindingKind, number>> 
 
 // Entrypoint: only runs when invoked directly (not when imported by tests).
 const invokedDirectly =
-  process.argv[1] !== undefined &&
-  import.meta.url === `file://${process.argv[1]}`;
+  typeof process.argv[1] === "string" &&
+  import.meta.url.startsWith(pathToFileURL(process.argv[1]).href);
 
 if (invokedDirectly) {
+  loadProjectEnv();
   const client = new StdioDataHubClient(configFromEnv());
   runCli(process.argv.slice(2), { client, out: (s) => console.log(s) })
     .then(async (code) => {
       await client.close();
-      process.exit(code);
+      process.exitCode = code;
     })
     .catch(async (err) => {
       console.error(err);
       await client.close();
-      process.exit(1);
+      process.exitCode = 1;
     });
 }

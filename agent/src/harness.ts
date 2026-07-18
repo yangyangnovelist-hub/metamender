@@ -234,13 +234,14 @@ Your job:
 2. For each gap, explain to the user in plain English what is wrong, why it
    matters (compliance/discoverability/blast-radius), and what the proposed
    fix would write back.
-3. For any gap the user wants fixed, call apply_fix for that ONE finding using
-   its exact (urn, kind, column) from the scan. Before every call you MUST state
-   the exact entity and fix and get an explicit "yes". One confirmation
-   authorizes exactly one fix — never batch.
+3. For a gap the user may want fixed, call apply_governance_fix for that ONE
+   finding using its exact (urn, kind, column) from the scan. The tool shows the
+   exact entity and proposed change in the terminal and obtains a fresh explicit
+   "yes". One confirmation authorizes exactly one fix — never batch.
 4. Report the mutation that was written after each fix. Never claim a fix
    succeeded without the tool's confirmation.
 
-Note: the apply_fix tool itself asks the user for terminal confirmation and will
-refuse without an explicit yes, and it refuses any target not in the last scan —
-do not try to work around it. Be concise, factual, and never pressure the user.`;
+Note: apply_governance_fix itself asks the user for terminal confirmation and
+will refuse without an explicit yes. It also refuses any target not in the last
+scan. Do not try to work around either control. Be concise, factual, and never
+pressure the user.`;

@@ -1,5 +1,33 @@
 import { describe, it, expect, afterAll } from "vitest";
-import { StdioDataHubClient, configFromEnv } from "../steward/src/datahubClient.js";
+import { mkdtempSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import {
+  StdioDataHubClient,
+  configFromEnv,
+  loadProjectEnv,
+} from "../steward/src/datahubClient.js";
+
+describe("loadProjectEnv", () => {
+  it("loads a .env file without overwriting an existing variable", () => {
+    const dir = mkdtempSync(join(tmpdir(), "metamender-env-"));
+    const path = join(dir, ".env");
+    writeFileSync(
+      path,
+      "METAMENDER_ENV_FROM_FILE=loaded\nMETAMENDER_ENV_EXISTING=file-value\n",
+      "utf8",
+    );
+    delete process.env.METAMENDER_ENV_FROM_FILE;
+    process.env.METAMENDER_ENV_EXISTING = "process-value";
+
+    loadProjectEnv(path);
+
+    expect(process.env.METAMENDER_ENV_FROM_FILE).toBe("loaded");
+    expect(process.env.METAMENDER_ENV_EXISTING).toBe("process-value");
+    delete process.env.METAMENDER_ENV_FROM_FILE;
+    delete process.env.METAMENDER_ENV_EXISTING;
+  });
+});
 
 /**
  * Integration smoke test — spawns the real `mcp-server-datahub` via uvx and talks

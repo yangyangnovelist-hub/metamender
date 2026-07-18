@@ -1,5 +1,8 @@
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
+import { existsSync } from "node:fs";
+import { loadEnvFile } from "node:process";
+import { fileURLToPath } from "node:url";
 
 /**
  * Narrow interface the detectors depend on. Everything in the steward that talks
@@ -28,11 +31,18 @@ export interface DataHubClientConfig {
 const DEFAULT_COMMAND = "uvx";
 const DEFAULT_ARGS = [
   "--from",
-  "mcp-server-datahub",
+  "mcp-server-datahub==0.6.0",
   "mcp-server-datahub",
   "--transport",
   "stdio",
 ];
+
+const DEFAULT_ENV_PATH = fileURLToPath(new URL("../../.env", import.meta.url));
+
+/** Load the repo-root `.env` when present. Existing process variables win. */
+export function loadProjectEnv(path = DEFAULT_ENV_PATH): void {
+  if (existsSync(path)) loadEnvFile(path);
+}
 
 /**
  * Read connection config from process.env (populated from `.env`). Falls back to

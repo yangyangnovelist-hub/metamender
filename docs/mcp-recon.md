@@ -32,7 +32,7 @@ The server reads either env vars or `~/.datahubenv`. We used env vars (cleaner f
 DATAHUB_GMS_URL=http://localhost:8080 \
 DATAHUB_GMS_TOKEN=<placeholder-or-PAT> \
 TOOLS_IS_MUTATION_ENABLED=true \
-uvx --from mcp-server-datahub mcp-server-datahub --transport stdio
+uvx --from mcp-server-datahub==0.6.0 mcp-server-datahub --transport stdio
 ```
 Transports supported: `stdio | sse | http` (`--transport` flag). stdio is what Claude Agent SDK / Claude Code want.
 

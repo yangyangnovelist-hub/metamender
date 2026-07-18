@@ -8,21 +8,30 @@
  * explicit per-finding "yes" → write the fix back → re-read to verify →
  * emit an audit report (md + json) into the report dir.
  *
- * Scripted mode is the default: confirmations are read from stdin (a closed
- * stdin can never authorize a fix — EOF answers "quit"). If ANTHROPIC_API_KEY is
- * present, an LLM-backed description drafter is used for missing-description
- * fixes; otherwise the deterministic template runs. The confirmation gate is the
- * SAME code path either way (agent/src/harness.ts) — never a prompt.
+ * With ANTHROPIC_API_KEY, Claude Agent SDK drives the scan/apply-fix tools. Without
+ * it, a deterministic scripted loop drives the same tools. Confirmations are read
+ * from stdin (a closed stdin can never authorize a fix — EOF answers "quit"). The
+ * confirmation gate is the SAME code path either way (agent/src/harness.ts).
  */
 import { createInterface } from "node:readline";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { StdioDataHubClient, configFromEnv } from "../../steward/src/datahubClient.js";
+import {
+  StdioDataHubClient,
+  configFromEnv,
+  loadProjectEnv,
+} from "../../steward/src/datahubClient.js";
 import type { DataHubClient } from "../../steward/src/datahubClient.js";
 import type { Finding, FindingKind } from "../../steward/src/types.js";
 import { scan as scanCatalog } from "../../steward/src/scan.js";
 import { applyFix, type FixOptions } from "../../steward/src/fixes.js";
-import { runScanAndFix, type HarnessIO } from "./harness.js";
+import {
+  createSessionTools,
+  GOVERNANCE_STEWARD_SYSTEM_PROMPT,
+  runScanAndFix,
+  type HarnessIO,
+  type ScanAndFixSummary,
+} from "./harness.js";
 import { verifyFix } from "./verify.js";
 import { writeAudit, type Verification } from "../../report/src/audit.js";
 
@@ -93,9 +102,8 @@ function filterFindings(findings: Finding[], targets: Target[]): Finding[] {
 }
 
 /**
- * Optional LLM description drafter. Uses the Anthropic SDK via a runtime import
- * so MetaMender never hard-depends on it (dynamic specifier keeps tsc happy
- * without the package installed). Any failure falls back to the template.
+ * Optional LLM description drafter. Any SDK or model failure falls back to the
+ * deterministic template, so a description fix never depends on an LLM response.
  */
 function buildDraftOption(): FixOptions {
   if (!process.env.ANTHROPIC_API_KEY) return {};
@@ -131,6 +139,118 @@ function buildDraftOption(): FixOptions {
     }
   };
   return { draft };
+}
+
+/** Claude Agent SDK mode, reusing the same code-enforced gate as scripted mode. */
+async function runLlmMode(
+  client: DataHubClient,
+  args: ParsedArgs,
+  io: HarnessIO,
+): Promise<number> {
+  const [{ query, tool, createSdkMcpServer }, { z }] = await Promise.all([
+    import("@anthropic-ai/claude-agent-sdk"),
+    import("zod"),
+  ]);
+  const fixOpts = buildDraftOption();
+  const scan = async () => filterFindings(await scanCatalog(client), args.targets);
+  const applyFn = (f: Finding) => applyFix(client, f, fixOpts);
+  const sessionTools = createSessionTools({ scan, applyFix: applyFn, io });
+  let lastFindings: Finding[] = [];
+  const summary: ScanAndFixSummary = {
+    findings: [],
+    fixed: [],
+    skipped: [],
+    failed: [],
+    quit: false,
+  };
+
+  const steward = createSdkMcpServer({
+    name: "metamender",
+    version: "0.1.0",
+    tools: [
+      tool(
+        "scan_governance_gaps",
+        "Scan the configured DataHub scope and return severity-ranked governance findings.",
+        {},
+        async () => {
+          lastFindings = await sessionTools.scan();
+          summary.findings = lastFindings;
+          return { content: [{ type: "text", text: JSON.stringify(lastFindings, null, 2) }] };
+        },
+      ),
+      tool(
+        "apply_governance_fix",
+        "Apply ONE finding from the last scan. The terminal asks for a fresh explicit confirmation and rejects invented targets.",
+        {
+          urn: z.string().describe("Entity URN exactly as returned by scan_governance_gaps"),
+          kind: z.enum(KINDS).describe("Finding kind exactly as returned by the scan"),
+          column: z.string().optional().describe("Column path for pii-untagged findings"),
+        },
+        async ({ urn, kind, column }) => {
+          const finding = lastFindings.find(
+            (f) =>
+              f.urn === urn &&
+              f.kind === kind &&
+              (f.column ?? undefined) === (column ?? undefined),
+          );
+          const outcome = await sessionTools.applyFixByRef(urn, kind, column);
+          if (finding) {
+            if (outcome.status === "fixed") {
+              summary.fixed.push({ finding, result: outcome.result });
+            } else if (outcome.status === "declined") {
+              summary.skipped.push(finding);
+            } else if (outcome.status === "failed") {
+              summary.failed.push({ finding, error: outcome.error });
+            } else if (outcome.status === "quit") {
+              summary.quit = true;
+            }
+          }
+          return { content: [{ type: "text", text: JSON.stringify(outcome, null, 2) }] };
+        },
+      ),
+    ],
+  });
+
+  const targetText = args.targets.length
+    ? ` Restrict the scan to these configured targets: ${args.targets
+        .map((t) => `${t.kind}${t.column ? `/${t.column}` : ""}@${t.urnSubstr}`)
+        .join(", ")}.`
+    : "";
+  const result = query({
+    prompt:
+      "Scan this DataHub catalog for governance gaps, explain the findings, and help me fix only the items I explicitly confirm." +
+      targetText,
+    options: {
+      systemPrompt: GOVERNANCE_STEWARD_SYSTEM_PROMPT,
+      mcpServers: { metamender: steward },
+      allowedTools: [
+        "mcp__metamender__scan_governance_gaps",
+        "mcp__metamender__apply_governance_fix",
+      ],
+      maxTurns: 30,
+    },
+  });
+
+  for await (const message of result) {
+    if (message.type === "assistant") {
+      for (const block of message.message.content) {
+        if (block.type === "text") io.write(block.text);
+      }
+    } else if (message.type === "result") {
+      io.write("");
+      io.write(
+        message.subtype === "success"
+          ? "Session complete."
+          : `Session ended: ${message.subtype}`,
+      );
+    }
+  }
+
+  if (summary.findings.length === 0) {
+    io.write("Claude did not complete a catalog scan; no audit report was written.");
+    return 1;
+  }
+  return verifyAndWriteAudit(client, args, io, summary);
 }
 
 /**
@@ -184,6 +304,15 @@ export async function runRound(
 
   const summary = await runScanAndFix({ scan, applyFix: applyFn, io });
 
+  return verifyAndWriteAudit(client, args, io, summary);
+}
+
+async function verifyAndWriteAudit(
+  client: DataHubClient,
+  args: ParsedArgs,
+  io: HarnessIO,
+  summary: ScanAndFixSummary,
+): Promise<number> {
   // Independent re-read verification for everything we wrote back.
   const verifications: Verification[] = [];
   for (const { finding } of summary.fixed) {
@@ -209,6 +338,7 @@ export async function runRound(
 }
 
 export async function main(argv: string[]): Promise<number> {
+  loadProjectEnv();
   let args: ParsedArgs;
   try {
     args = parseArgs(argv);
@@ -221,6 +351,11 @@ export async function main(argv: string[]): Promise<number> {
   const client = new StdioDataHubClient({ ...configFromEnv(), mutationEnabled: true });
   const { io, close } = makeTerminalIO();
   try {
+    if (process.env.ANTHROPIC_API_KEY) {
+      io.write("ANTHROPIC_API_KEY found — Claude Agent SDK is driving this session.");
+      return await runLlmMode(client, args, io);
+    }
+    io.write("ANTHROPIC_API_KEY not set — running deterministic scripted mode.");
     return await runRound(client, args, io);
   } catch (error) {
     console.error(`run failed: ${error instanceof Error ? error.message : String(error)}`);
