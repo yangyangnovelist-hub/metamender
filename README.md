@@ -11,13 +11,30 @@ official DataHub MCP server.
 Built for **Build with DataHub: The Agent Hackathon**, Track 1 — Agents That Do
 Real Work.
 
+## Why this is different
+
+"Scan the catalog, then auto-fix the metadata" is the obvious shape of this
+challenge, and plenty of entries will have it. MetaMender bets on the harder
+question, whether anyone would actually run it against a production catalog, and
+answers with responsible write-back:
+
+- **Every write is gated on one explicit human `yes`.** There is no batch
+  approval. The gate lives in code (`agent/src/harness.ts`), not in a prompt, and
+  a test proves it cannot be bypassed. Auto-rewriting production metadata in bulk
+  is exactly the thing no data team will turn on.
+- **Severity is lineage-aware, not a flat list.** A PII gap on a table with live
+  downstream consumers ranks above the same gap on a leaf table, so the
+  highest-blast-radius work surfaces first. The agent spells out that evidence
+  before it asks for the write.
+
 ## What it does
 
 1. Scans up to 100 DataHub datasets through MCP.
 2. Detects missing owners, missing descriptions, PII-looking fields without the
    configured PII glossary term, and datasets with no upstream or downstream
    lineage as orphan review candidates.
-3. Ranks findings by risk and explains the evidence in plain English.
+3. Ranks findings by risk (live downstream consumers raise a finding's severity)
+   and explains the evidence in plain English.
 4. Shows one exact proposed mutation at a time.
 5. Requires a fresh terminal `yes` for that single mutation.
 6. Writes the approved owner, description, or glossary term back to DataHub.
