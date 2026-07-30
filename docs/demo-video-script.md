@@ -12,7 +12,7 @@ below performs a real metadata write.
 | --- | --- | --- |
 | 0:00–0:12 | **Your metadata catalog is already drifting.** Missing owners hide accountability. Blank descriptions slow discovery. Unclassified PII raises risk. | DataHub 中快速切换 `ADDRESSES`、`warehouses`、`orders`。 |
 | 0:12–0:25 | **MetaMender turns metadata debt into a safe, prioritized work queue.** | 展示 README 标题后切到终端。 |
-| 0:25–0:43 | `npm run scan -- --dry-run` — **The scan is read-only and uses DataHub MCP.** | 运行只读扫描；停在按严重度排序的结果。 |
+| 0:25–0:43 | `npm run scan -- --dry-run --urn-contains snowflake,b2fd91.order_entry_db.order_entry.addresses` — **The scan is read-only and uses DataHub MCP.** | 运行面向演示数据集的只读扫描；停在按严重度排序的结果。 |
 | 0:43–1:02 | **This is evidence, not a guess:** `ADDRESSES.town_city` matches a disclosed PII heuristic, has active downstreams, and has no PII glossary term. | 放大 severity 100 的 `town_city` finding。 |
 | 1:02–1:18 | **A model cannot invent a write target. It can act only on the latest scan.** | 运行下方精确 target 命令。 |
 | 1:18–1:37 | **One exact change. One fresh human decision.** | 终端显示完整 URN、column、proposed fix 后，现场输入 `yes`。不要提前管道输入。 |

@@ -36,6 +36,7 @@ const PII_SUBSTRINGS = [
   "town_city",
 ];
 const PII_TOKENS = ["ip"];
+const SCHEMA_CONCURRENCY = 5;
 
 /** Name heuristic: does this field name look like it holds personal data? */
 export function isPiiFieldName(name: string): boolean {
@@ -107,15 +108,21 @@ export async function detectPiiUntagged(
   const targets = datasets ?? (await searchDatasets(client));
   const piiTermUrn = configuredPiiTermUrn();
   const findings: Finding[] = [];
-  for (const ds of targets) {
-    const fields = await getSchemaFields(client, ds.urn);
-    const piiFields = fields.filter(
-      (f) => isPiiFieldName(f.fieldPath) && !hasPiiTerm(f, piiTermUrn),
+  for (let start = 0; start < targets.length; start += SCHEMA_CONCURRENCY) {
+    const batch = targets.slice(start, start + SCHEMA_CONCURRENCY);
+    const evaluated = await Promise.all(
+      batch.map(async (ds) => {
+        const fields = await getSchemaFields(client, ds.urn);
+        const hasCandidate = fields.some(
+          (f) => isPiiFieldName(f.fieldPath) && !hasPiiTerm(f, piiTermUrn),
+        );
+        if (!hasCandidate) return [];
+        // Only pay for lineage when there's actually something to rank.
+        const hasDownstream = (await getDownstreamCount(client, ds.urn)) > 0;
+        return detectPiiUntaggedForDataset(ds, fields, hasDownstream, piiTermUrn);
+      }),
     );
-    if (piiFields.length === 0) continue;
-    // Only pay for lineage when there's actually something to rank.
-    const hasDownstream = (await getDownstreamCount(client, ds.urn)) > 0;
-    findings.push(...detectPiiUntaggedForDataset(ds, fields, hasDownstream, piiTermUrn));
+    findings.push(...evaluated.flat());
   }
   return findings;
 }

@@ -29,6 +29,9 @@ export interface DataHubClientConfig {
 }
 
 const DEFAULT_COMMAND = "uvx";
+// Broad catalog reads (especially get_entities over a freshly loaded quickstart)
+// can legitimately exceed the MCP SDK's 60-second default.
+const DATAHUB_REQUEST_TIMEOUT_MS = 180_000;
 const DEFAULT_ARGS = [
   "--from",
   "mcp-server-datahub==0.6.0",
@@ -112,7 +115,11 @@ export class StdioDataHubClient implements DataHubClient {
 
   async callTool<T = unknown>(name: string, args: Record<string, unknown>): Promise<T> {
     await this.connect();
-    const res = await this.client.callTool({ name, arguments: args });
+    const res = await this.client.callTool(
+      { name, arguments: args },
+      undefined,
+      { timeout: DATAHUB_REQUEST_TIMEOUT_MS },
+    );
     if (res.isError) {
       const text = extractText(res);
       throw new Error(`DataHub MCP tool '${name}' returned an error: ${text}`);

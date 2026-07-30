@@ -25,14 +25,17 @@ export async function runCli(argv: string[], deps: CliDeps): Promise<number> {
   const [command, ...rest] = argv;
   const json = rest.includes("--json");
   const dryRun = rest.includes("--dry-run");
+  const urnSubstrings = rest.flatMap((arg, index) =>
+    arg === "--urn-contains" && rest[index + 1] ? [rest[index + 1]] : [],
+  );
 
   if (command !== "scan") {
     deps.out(`Unknown command: ${command ?? "(none)"}`);
-    deps.out("Usage: steward scan [--json] [--dry-run]");
+    deps.out("Usage: steward scan [--json] [--dry-run] [--urn-contains TEXT]...");
     return 1;
   }
 
-  const findings = await scan(deps.client);
+  const findings = await scan(deps.client, { urnSubstrings });
 
   if (json) {
     deps.out(JSON.stringify(findings, null, 2));

@@ -160,7 +160,11 @@ async function runLlmMode(
     import("zod"),
   ]);
   const fixOpts = buildFixOptions();
-  const scan = async () => filterFindings(await scanCatalog(client), args.targets);
+  const scan = async () =>
+    filterFindings(
+      await scanCatalog(client, { urnSubstrings: args.targets.map((target) => target.urnSubstr) }),
+      args.targets,
+    );
   const applyFn = (f: Finding) => applyFix(client, f, fixOpts);
   const sessionTools = createSessionTools({ scan, applyFix: applyFn, io });
   let lastFindings: Finding[] = [];
@@ -307,7 +311,11 @@ export async function runRound(
   io: HarnessIO,
 ): Promise<number> {
   const fixOpts = buildFixOptions();
-  const scan = async () => filterFindings(await scanCatalog(client), args.targets);
+  const scan = async () =>
+    filterFindings(
+      await scanCatalog(client, { urnSubstrings: args.targets.map((target) => target.urnSubstr) }),
+      args.targets,
+    );
   const applyFn = (f: Finding) => applyFix(client, f, fixOpts);
 
   const summary = await runScanAndFix({ scan, applyFix: applyFn, io });

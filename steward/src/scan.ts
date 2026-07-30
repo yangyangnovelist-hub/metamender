@@ -12,8 +12,18 @@ import { detectOrphans } from "./detectors/orphan.js";
  * owner and description detectors; the PII detector walks each dataset's schema
  * fields. Returns a single severity-sorted Finding[].
  */
-export async function scan(client: DataHubClient): Promise<Finding[]> {
-  const datasets = await searchDatasets(client);
+export interface ScanOptions {
+  /** Restrict expensive schema/lineage reads to URNs containing any value. */
+  urnSubstrings?: string[];
+}
+
+export async function scan(client: DataHubClient, options: ScanOptions = {}): Promise<Finding[]> {
+  const discovered = await searchDatasets(client);
+  const datasets = options.urnSubstrings?.length
+    ? discovered.filter((dataset) =>
+        options.urnSubstrings!.some((value) => dataset.urn.includes(value)),
+      )
+    : discovered;
   const entities = await getEntities(client, datasets.map((d) => d.urn));
 
   const [owner, description, pii, orphan] = await Promise.all([
