@@ -69,6 +69,13 @@ describe("hasPiiTerm", () => {
     };
     expect(hasPiiTerm(field, termUrn)).toBe(true);
   });
+  it("recognizes MCP terms nested under term.urn", () => {
+    const field = {
+      fieldPath: "town_city",
+      glossaryTerms: { terms: [{ term: { urn: PII_TERM_URN } }] },
+    };
+    expect(hasPiiTerm(field, PII_TERM_URN)).toBe(true);
+  });
 });
 
 describe("detectPiiUntaggedForDataset (pure, addresses fixture)", () => {

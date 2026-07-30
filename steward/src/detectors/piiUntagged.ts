@@ -65,10 +65,11 @@ function collectTermNames(source: unknown, out: string[]): void {
   for (const t of source) {
     if (typeof t === "string") out.push(t);
     else if (t && typeof t === "object") {
-      const o = t as { name?: string; urn?: string; term?: { name?: string } };
+      const o = t as { name?: string; urn?: string; term?: { name?: string; urn?: string } };
       if (o.name) out.push(o.name);
       if (o.urn) out.push(o.urn);
       if (o.term?.name) out.push(o.term.name);
+      if (o.term?.urn) out.push(o.term.urn);
     }
   }
 }
