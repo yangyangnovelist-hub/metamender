@@ -69,7 +69,7 @@ Finally, MCP tool startup is expensive when a new server is spawned for every ca
 - Evidence-backed PII candidates with downstream-aware severity.
 - Human-readable and machine-readable audit trails.
 - 84 default tests plus three passing real DataHub MCP checks.
-- A validated, reusable datahub-audit skill contribution prepared for the official DataHub Skills repository.
+- A validated, reusable datahub-audit skill contribution submitted as datahub-project/datahub-skills#70.
 ```
 
 ## What we learned

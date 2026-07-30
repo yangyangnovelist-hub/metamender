@@ -19,7 +19,7 @@ below performs a real metadata write.
 | 1:37–1:53 | **Written through the official DataHub MCP server — then independently re-read. VERIFIED.** | 保留 MCP ack 与 verification 行。 |
 | 1:53–2:11 | **The catalog changed, not just the chat.** | 回到 DataHub 刷新 `town_city`，展示新 PII term。 |
 | 2:11–2:27 | **Every run leaves human-readable and machine-readable evidence.** | 打开最新 `examples/audit-*.md`，再快速展示 JSON。 |
-| 2:27–2:40 | **Bonus: a reusable, read-only `/datahub-audit` skill prepared for the official DataHub Skills repository.** | 展示 `bounty/skill-pr/skills/datahub-audit/SKILL.md` 的标题、Boundaries、Audit Dimensions。 |
+| 2:27–2:40 | **Bonus: our reusable, read-only `/datahub-audit` skill is now upstream PR #70.** | 在浏览器展示 https://github.com/datahub-project/datahub-skills/pull/70。 |
 | 2:40–2:48 | **MetaMender — find the gaps, approve the repair, prove the result.** | 结束卡：名称、track、仓库 URL。 |
 
 ## Exact demo command

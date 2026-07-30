@@ -179,9 +179,6 @@ a validated read-only `datahub-audit` contribution plus its command alias. It is
 deliberately independent of MetaMender so the wider DataHub community can reuse the
 workflow with any Agent Skills-compatible client.
 
-The contribution is prepared locally; no upstream PR is claimed until it is
-actually filed and accepted.
-
 ## Scope and limitations
 
 - The default scan is bounded to the first 100 matching datasets.
