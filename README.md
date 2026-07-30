@@ -108,7 +108,7 @@ datahub datapack load showcase-ecommerce
 Install and configure MetaMender:
 
 ```bash
-git clone <PUBLIC_REPOSITORY_URL>
+git clone https://github.com/yangyangnovelist-hub/metamender.git
 cd metamender
 npm install
 cp .env.example .env

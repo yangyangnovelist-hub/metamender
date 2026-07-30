@@ -1,7 +1,7 @@
 # Devpost submission — pre-filled fields
 
 Copy the English fields into **Build with DataHub: The Agent Hackathon**. Replace
-the two `TODO` values only after the public repository and video exist.
+the remaining video `TODO` after the recording is uploaded.
 
 ## Project name
 
@@ -93,7 +93,7 @@ DataHub OSS, DataHub MCP Server, DataHub Skills, Claude Agent SDK, Model Context
 ## Public repository
 
 ```text
-TODO — public Apache-2.0 GitHub repository URL
+https://github.com/yangyangnovelist-hub/metamender
 ```
 
 ## Demo video
@@ -110,7 +110,7 @@ AI coding assistants were used during development and are disclosed here. The co
 
 ## Final operator checklist（不要粘贴进提交字段）
 
-1. 创建公开 GitHub 仓库，确认 Apache-2.0 `LICENSE` 可见，并填仓库 URL。
+1. 确认公开 GitHub 仓库和 Apache-2.0 `LICENSE` 仍可访问。
 2. 运行 `npm test`、`npm run typecheck`、`npm run test:integration` 和 `npm audit`。
 3. 按 `docs/demo-video-script.md` 录制，确认上传后时长低于三分钟。
 4. 如果 upstream PR 已实际提交，再把 PR URL 添加到 bonus contribution 描述；未提交前不要声称已提交。
