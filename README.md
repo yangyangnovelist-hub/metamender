@@ -173,10 +173,11 @@ when an operator runs the agent and types `yes` for the displayed finding.
 
 The official [`datahub-project/datahub-skills`](https://github.com/datahub-project/datahub-skills)
 repository routes systematic governance audits to `/datahub-audit`, but does not
-currently include that skill. `bounty/skill-pr/` contains a prepared, validated
-read-only `datahub-audit` contribution plus its command alias and PR description.
-It is deliberately independent of MetaMender so the wider DataHub community can
-reuse the workflow with any Agent Skills-compatible client.
+currently include that skill. We submitted
+[datahub-project/datahub-skills#70](https://github.com/datahub-project/datahub-skills/pull/70),
+a validated read-only `datahub-audit` contribution plus its command alias. It is
+deliberately independent of MetaMender so the wider DataHub community can reuse the
+workflow with any Agent Skills-compatible client.
 
 The contribution is prepared locally; no upstream PR is claimed until it is
 actually filed and accepted.

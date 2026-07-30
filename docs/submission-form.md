@@ -48,7 +48,7 @@ The agent layer exposes scan_governance_gaps and apply_governance_fix as in-proc
 
 The repository includes deterministic detectors, bidirectional lineage-based orphan review candidates, configurable owner/glossary targets, mutation planning, independent verification, dual-format audit reporting, 84 passing default tests, and three additional real MCP integration checks against a local DataHub quickstart. The dependency audit currently reports zero known vulnerabilities.
 
-For the open-source bonus, we also prepared a reusable read-only /datahub-audit skill for datahub-project/datahub-skills. It fills an existing routing gap in that repository and is independent of MetaMender's implementation.
+For the open-source bonus, we submitted a reusable read-only /datahub-audit skill to datahub-project/datahub-skills: https://github.com/datahub-project/datahub-skills/pull/70. It fills an existing routing gap in that repository and is independent of MetaMender's implementation.
 ```
 
 ## Challenges
@@ -81,7 +81,7 @@ A useful governance agent needs more than mutation tools. It needs clear evidenc
 ## What's next
 
 ```text
-Next we will evolve the current environment-configured owner and glossary targets into versioned policy profiles, resolve ownership through domains and teams, add bounded scheduling and trend reports, and support additional DataHub governance dimensions such as assertions and structured properties. The prepared datahub-audit skill will be proposed upstream separately so read-only catalog audits can be reused without installing MetaMender.
+Next we will evolve the current environment-configured owner and glossary targets into versioned policy profiles, resolve ownership through domains and teams, add bounded scheduling and trend reports, and support additional DataHub governance dimensions such as assertions and structured properties. The submitted datahub-audit skill can make read-only catalog audits reusable without installing MetaMender.
 ```
 
 ## Built with
@@ -113,5 +113,5 @@ AI coding assistants were used during development and are disclosed here. The co
 1. 确认公开 GitHub 仓库和 Apache-2.0 `LICENSE` 仍可访问。
 2. 运行 `npm test`、`npm run typecheck`、`npm run test:integration` 和 `npm audit`。
 3. 按 `docs/demo-video-script.md` 录制，确认上传后时长低于三分钟。
-4. 如果 upstream PR 已实际提交，再把 PR URL 添加到 bonus contribution 描述；未提交前不要声称已提交。
+4. 确认 upstream PR https://github.com/datahub-project/datahub-skills/pull/70 可访问。
 5. 在 Devpost 截止时间 **2026-08-10 5:00 PM EDT** 前提交并保存最终页面截图。
