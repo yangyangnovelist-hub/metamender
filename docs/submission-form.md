@@ -46,7 +46,7 @@ MetaMender is a TypeScript agent built around the published mcp-server-datahub p
 
 The agent layer exposes scan_governance_gaps and apply_governance_fix as in-process tools to Claude Agent SDK. The apply tool is wrapped by a code-enforced confirmation gate shared with the deterministic fallback. Findings must come from the latest scan and are keyed by exact URN, kind, and optional column.
 
-The repository includes deterministic detectors, bidirectional lineage-based orphan review candidates, configurable owner/glossary targets, mutation planning, independent verification, dual-format audit reporting, 84 passing default tests, and three additional real MCP integration checks against a local DataHub quickstart. The dependency audit currently reports zero known vulnerabilities.
+The repository includes deterministic detectors, bidirectional lineage-based orphan review candidates, configurable owner/glossary targets, mutation planning, independent verification, dual-format audit reporting, 85 passing default tests, and three additional real MCP integration checks against a local DataHub quickstart. The dependency audit currently reports zero known vulnerabilities.
 
 For the open-source bonus, we submitted a reusable read-only /datahub-audit skill to datahub-project/datahub-skills: https://github.com/datahub-project/datahub-skills/pull/70. It fills an existing routing gap in that repository and is independent of MetaMender's implementation.
 ```
@@ -68,7 +68,7 @@ Finally, MCP tool startup is expensive when a new server is spawned for every ca
 - Code-enforced one-finding/one-confirmation safety shared by LLM and deterministic modes.
 - Evidence-backed PII candidates with downstream-aware severity.
 - Human-readable and machine-readable audit trails.
-- 84 default tests plus three passing real DataHub MCP checks.
+- 85 default tests plus three passing real DataHub MCP checks.
 - A validated, reusable datahub-audit skill contribution submitted as datahub-project/datahub-skills#70.
 ```
 

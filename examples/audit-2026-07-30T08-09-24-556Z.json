@@ -1,0 +1,54 @@
+{
+  "runAt": "2026-07-30T08:09:24.556Z",
+  "target": "showcase-ecommerce local quickstart",
+  "counts": {
+    "found": 1,
+    "fixed": 1,
+    "skipped": 0,
+    "failed": 0
+  },
+  "findings": [
+    {
+      "urn": "urn:li:dataset:(urn:li:dataPlatform:postgres,b2fd91.order_entry_db.order_entry.warehouses,PROD)",
+      "kind": "missing-owner",
+      "severity": 60,
+      "entityName": "warehouses",
+      "evidence": "Dataset \"warehouses\" has no owner assigned.",
+      "proposedFix": "Assign a technical owner via add_owners (ownership_type TECHNICAL_OWNER)."
+    }
+  ],
+  "fixed": [
+    {
+      "urn": "urn:li:dataset:(urn:li:dataPlatform:postgres,b2fd91.order_entry_db.order_entry.warehouses,PROD)",
+      "kind": "missing-owner",
+      "entityName": "warehouses",
+      "mutation": {
+        "tool": "add_owners",
+        "args": {
+          "owner_urns": [
+            "urn:li:corpuser:datahub"
+          ],
+          "entity_urns": [
+            "urn:li:dataset:(urn:li:dataPlatform:postgres,b2fd91.order_entry_db.order_entry.warehouses,PROD)"
+          ],
+          "ownership_type": "TECHNICAL_OWNER"
+        }
+      },
+      "ack": {
+        "success": true,
+        "message": "Successfully added 1 owner(s) to 1 entit(ies)"
+      }
+    }
+  ],
+  "skipped": [],
+  "failed": [],
+  "verifications": [
+    {
+      "urn": "urn:li:dataset:(urn:li:dataPlatform:postgres,b2fd91.order_entry_db.order_entry.warehouses,PROD)",
+      "kind": "missing-owner",
+      "before": "no owner",
+      "after": "owner(s): DataHub",
+      "ok": true
+    }
+  ]
+}

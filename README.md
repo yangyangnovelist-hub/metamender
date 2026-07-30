@@ -158,7 +158,7 @@ npm audit
 
 Current verified baseline:
 
-- 84 default tests pass; 3 more real MCP checks pass against a local DataHub
+- 85 default tests pass; 3 more real MCP checks pass against a local DataHub
   quickstart.
 - TypeScript type checking passes.
 - The dependency audit reports zero known vulnerabilities.
