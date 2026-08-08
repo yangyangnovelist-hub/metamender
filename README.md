@@ -11,6 +11,9 @@ official DataHub MCP server.
 Built for **Build with DataHub: The Agent Hackathon**, Track 1 — Agents That Do
 Real Work.
 
+**Demo:** [watch the 1:53 end-to-end DataHub repair](https://youtu.be/5BLmMYNmkWE) ·
+**Submission:** [Devpost](https://devpost.com/software/metamender)
+
 ## Why this is different
 
 "Scan the catalog, then auto-fix the metadata" is the obvious shape of this

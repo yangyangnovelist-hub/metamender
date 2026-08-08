@@ -1,7 +1,7 @@
 # Devpost submission — pre-filled fields
 
-Copy the English fields into **Build with DataHub: The Agent Hackathon**. Replace
-the remaining video `TODO` after the recording is uploaded.
+Copy the English fields into **Build with DataHub: The Agent Hackathon**. The
+public demo URL below matches the submitted Devpost entry.
 
 ## Project name
 
@@ -99,7 +99,7 @@ https://github.com/yangyangnovelist-hub/metamender
 ## Demo video
 
 ```text
-TODO — public or unlisted video URL, under three minutes
+https://youtu.be/5BLmMYNmkWE
 ```
 
 ## AI and prior-work disclosure
